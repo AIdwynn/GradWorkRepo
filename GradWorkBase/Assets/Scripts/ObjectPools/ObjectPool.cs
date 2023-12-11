@@ -1,25 +1,33 @@
+
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vital.ObjectPools
 {
-    public class GameObjectPool
+    public class ObjectPool<T>
+        where T : MonoBehaviour
     {
-        private Queue<GameObject> _pool = new Queue<GameObject>();
+        private Queue<T> _pool = new Queue<T>();
         private bool _canGrow = true;
-        private GameObject _original;
+        private T _original;
         private Transform _parent;
+        
+        public  Queue<T> Pool
+        {
+            get { return _pool; }
+        }
 
-        public GameObjectPool(bool canGrow, GameObject original)
+        public ObjectPool(bool canGrow, T original)
         {
             _canGrow = canGrow;
             _original = original;
         }
 
-        public static GameObjectPool CreateObjectPool(GameObject original, int initialPoolSize, bool canGrow,
+        public static ObjectPool<Y> CreateObjectPool<Y>(Y original, int initialPoolSize, bool canGrow,
             Transform parent)
+            where Y : MonoBehaviour
         {
-            GameObjectPool objectPool = new GameObjectPool(canGrow, original);
+            ObjectPool<Y> objectPool = new ObjectPool<Y>(canGrow, original);
             objectPool.CreateParent(parent, original.name);
             objectPool.FillPool(initialPoolSize);
             return objectPool;
@@ -39,25 +47,24 @@ namespace Vital.ObjectPools
             }
         }
 
-        private GameObject InstantiateOriginal()
+        private T InstantiateOriginal()
         {
-            var obj = GameObject.Instantiate(_original, _parent) as GameObject;
+            var obj = GameObject.Instantiate(_original, _parent);
 
-            obj.SetActive(false);
+            obj.gameObject.SetActive(false);
 
 
             return obj;
         }
 
-        public bool TryGet(out GameObject poolableObject)
+        public bool TryGet(out T poolableObject)
         {
             if (_pool.Count == 0)
             {
                 if (_canGrow)
                 {
                     poolableObject = InstantiateOriginal();
-                    poolableObject.SetActive(true);
-                    //Debug.Log($"{poolableObject.name} pool grew");
+                    poolableObject.gameObject.SetActive(true);
                     return true;
                 }
 
@@ -66,18 +73,18 @@ namespace Vital.ObjectPools
             }
 
             poolableObject = _pool.Dequeue();
-            poolableObject.SetActive(true);
+            poolableObject.gameObject.SetActive(true);
             return true;
         }
 
-        public bool TryReturn(GameObject poolableObject)
+        public bool TryReturn(T poolableObject)
         {
             if (poolableObject == null)
             {
                 return false;
             }
 
-            poolableObject.SetActive(false);
+            poolableObject.gameObject.SetActive(false);
             _pool.Enqueue(poolableObject);
             return true;
         }
