@@ -32,12 +32,32 @@ namespace Vital.ObjectPools
             return this;
         }
         
+        public ObjectPoolManager CreateObjectPool (GameObject original, int initialPoolSize, bool canGrow)
+        {
+            var name = original.gameObject.name;
+            if(_pools.ContainsKey(name)) { Debug.Log($"Pool already exists for {name}"); return this; }
+            if(!_pools.TryAdd(name, GameObjectPool.CreateObjectPool(original, initialPoolSize, canGrow, _parent)))
+                Debug.Log($"Pool already exists for {name}");
+            return this;
+        }
+        
         public bool TryGet<T> (string name, out T poolableObject)
             where T : MonoBehaviour
         {
             if (_pools.TryGetValue(name, out object pool))
             {
                 return ((ObjectPool<T>)pool).TryGet(out poolableObject);
+            }
+            
+            poolableObject = null;
+            return false;
+        }
+        
+        public bool TryGet (string name, out GameObject poolableObject)
+        {
+            if (_pools.TryGetValue(name, out object pool))
+            {
+                return ((GameObjectPool)pool).TryGet(out poolableObject);
             }
             
             poolableObject = null;
@@ -59,6 +79,26 @@ namespace Vital.ObjectPools
                 if (_pools.TryGetValue(name, out object pool))
                 {
                     return ((ObjectPool<T>)pool).TryReturn(poolableObject);
+                }
+            }
+
+            throw new Exception("Pool does not exist");
+        }
+        
+        public bool TryReturn (string name, GameObject poolableObject)
+        {
+            if (CloneNameRemover(name, out var editedName))
+            {
+                if (_pools.TryGetValue(editedName, out object pool))
+                {
+                    return ((GameObjectPool)pool).TryReturn(poolableObject);
+                }
+            }
+            else
+            {
+                if (_pools.TryGetValue(name, out object pool))
+                {
+                    return ((GameObjectPool)pool).TryReturn(poolableObject);
                 }
             }
 
