@@ -8,6 +8,7 @@ namespace Gradwork.Attacks
     {
         void Update()
         {
+            
         }
     }
 }

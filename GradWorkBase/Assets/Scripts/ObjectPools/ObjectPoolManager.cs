@@ -41,6 +41,15 @@ namespace Vital.ObjectPools
             return this;
         }
         
+        public ObjectPoolManager CreateObjectPool<T> (string name, int initialPoolSize, bool canGrow)
+            where T : IPoolableScript
+        {
+            if(_pools.ContainsKey(name)) { Debug.Log($"Pool already exists for {name}"); return this; }
+            if(!_pools.TryAdd(name, ScriptObjectPool<T>.CreateObjectPool(initialPoolSize, canGrow)))
+                Debug.Log($"Pool already exists for {name}");
+            return this;
+        }
+        
         public bool TryGet<T> (string name, out T poolableObject)
             where T : MonoBehaviour
         {
@@ -61,6 +70,18 @@ namespace Vital.ObjectPools
             }
             
             poolableObject = null;
+            return false;
+        }
+        
+        public bool TryGetScript<T> (string name, out T poolableObject)
+            where T : IPoolableScript
+        {
+            if (_pools.TryGetValue(name, out object pool))
+            {
+                return ((ScriptObjectPool<T>)pool).TryGet(out poolableObject);
+            }
+            
+            poolableObject = default(T);
             return false;
         }
         
@@ -100,6 +121,17 @@ namespace Vital.ObjectPools
                 {
                     return ((GameObjectPool)pool).TryReturn(poolableObject);
                 }
+            }
+
+            throw new Exception("Pool does not exist");
+        }
+        
+        public bool TryReturn<T> (string name, T poolableObject, Transform parent)
+            where T : IPoolableScript
+        {
+            if (_pools.TryGetValue(name, out object pool))
+            {
+                return ((ScriptObjectPool<T>)pool).TryReturn(poolableObject);
             }
 
             throw new Exception("Pool does not exist");
