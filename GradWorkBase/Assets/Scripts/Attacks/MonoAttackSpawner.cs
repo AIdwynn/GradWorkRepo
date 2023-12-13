@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,10 +24,12 @@ namespace Gradwork.Attacks
         void Start()
         {
             _objectPoolManager = new ObjectPoolManager();
-            _attackManager = new AttackManager();
+            new BirdModel();
+
             _objectPoolManager.CreateObjectPool(_attackPrefab, _attackPoolSize, true)
                 .CreateObjectPool<BirdModel>(BirdModel.NameStatic, _attackPoolSize, true);
-            
+
+            _attackManager = new AttackManager();
             SpawnAttacks();
         }
 
@@ -37,14 +40,25 @@ namespace Gradwork.Attacks
                 if (_objectPoolManager.TryGet(_attackPrefab.name, out GameObject attack) &&
                     _objectPoolManager.TryGetScript(BirdModel.NameStatic, out BirdModel birdModel))
                 {
-                    birdModel.SetView(attack).SetPosition(transform.position).SetActive(true);
+                    birdModel.SetView(attack).SetPosition(transform.position).SetRotation(GetRotation(i)).SetActive(true);
                     attack.SetActive(true);
                 }
             }
 
             StartCoroutine(WaitForNextWave());
         }
-        
+
+        private void Update()
+        {
+            _attackManager.Update();
+        }
+
+        private Vector3 GetRotation(int i)
+        {
+            var angle = (360f / _amountPerWave) * i;
+            return new Vector3(0, angle, 0);
+        }
+
         public IEnumerator WaitForNextWave()
         {
             yield return new WaitForSeconds(_timeBetweenWaves);
