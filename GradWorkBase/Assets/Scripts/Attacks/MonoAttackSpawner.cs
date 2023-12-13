@@ -39,7 +39,7 @@ namespace Gradwork.Attacks
             _objectPoolManager.CreateObjectPool(_attackPrefab, _attackPoolSize, true)
                 .CreateObjectPool<BirdModel>(BirdModel.NameStatic, _attackPoolSize, true);
 
-            _attackManager = new AttackManager(_obstaclesModels);
+            _attackManager = new AttackManager(_obstaclesModels, transform.position);
             SpawnAttacks();
         }
 

@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ObstaclesView : MonoBehaviour
@@ -11,7 +9,7 @@ public class ObstaclesView : MonoBehaviour
 
     private void Start()
     {
-        var model = new ObstaclesModel().SetPosition(transform.position).SetRadius(radius).SetView(gameObject);
+        var model = new ObstaclesModel().SetView(gameObject).SetPosition(transform.position).SetRadius(radius);
         SCR_EventHelper.TrySendEvent(ObstaclesCreated, this, new ObstaclesCreatedEventArgs(model));
         Destroy(this);
     }

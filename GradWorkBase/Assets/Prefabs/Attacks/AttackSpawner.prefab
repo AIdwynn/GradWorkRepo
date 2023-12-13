@@ -46,6 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _attackPrefab: {fileID: 6392790016983472278, guid: 138355b2351711f4bb1af11b5156b0bc,
     type: 3}
-  _amountPerWave: 50
+  _amountPerWave: 500
   _timeBetweenWaves: 2
-  _attackPoolSize: 1000
+  _attackPoolSize: 10000
+  _obstaclesViews: []
