@@ -8,11 +8,15 @@ namespace Gradwork.Attacks
     public class AttackManager
     {
         List<BirdModel> birdModels;
-        public AttackManager()
+        List<ObstaclesModel> obstaclesModels;
+
+        public AttackManager(List<ObstaclesModel> obstaclesModels)
         {
+            this.obstaclesModels = obstaclesModels;
             ObjectPoolManager.Instance.TryGetScriptPool<BirdModel>(BirdModel.NameStatic, out var objectpool);
             birdModels = objectpool.Pool;
         }
+
         public void Update()
         {
             foreach (var model in birdModels)

@@ -15,11 +15,21 @@ namespace Gradwork.Attacks
 
         [SerializeField] private float _timeBetweenWaves = 2;
 
-        [Header("Unchangeable on Play")] [SerializeField]
-        private int _attackPoolSize = 1000;
-
+        [Header("Unchangeable on Play")]
+        [SerializeField] private int _attackPoolSize = 1000;
+        [SerializeField] private List<ObstaclesView> _obstaclesViews;
+        
+        private List<ObstaclesModel> _obstaclesModels = new List<ObstaclesModel>();
         private ObjectPoolManager _objectPoolManager;
         private AttackManager _attackManager;
+
+        private void Awake()
+        {
+            foreach (var obstacles in _obstaclesViews)
+            {
+                obstacles.ObstaclesCreated += (s,e) => _obstaclesModels.Add(e.ObstaclesModel);
+            }
+        }
 
         void Start()
         {
@@ -29,7 +39,7 @@ namespace Gradwork.Attacks
             _objectPoolManager.CreateObjectPool(_attackPrefab, _attackPoolSize, true)
                 .CreateObjectPool<BirdModel>(BirdModel.NameStatic, _attackPoolSize, true);
 
-            _attackManager = new AttackManager();
+            _attackManager = new AttackManager(_obstaclesModels);
             SpawnAttacks();
         }
 
