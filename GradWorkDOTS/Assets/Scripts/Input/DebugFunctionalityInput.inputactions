@@ -1,0 +1,34 @@
+{
+    "name": "DebugFunctionalityInput",
+    "maps": [
+        {
+            "name": "PlayerDebugFuntionalityActionMap",
+            "id": "7dd78340-5138-44fe-be4f-00cd7d2a1c81",
+            "actions": [
+                {
+                    "name": "OpenDebugMenu",
+                    "type": "Button",
+                    "id": "b72a6c98-a230-4dd1-b3db-4fe50a9fd930",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "544f9767-f6f1-4744-b327-3878f81007a0",
+                    "path": "<Keyboard>/o",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OpenDebugMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

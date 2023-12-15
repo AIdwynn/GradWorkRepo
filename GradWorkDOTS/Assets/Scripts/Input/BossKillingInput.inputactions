@@ -1,0 +1,46 @@
+{
+    "name": "BossKillingInput",
+    "maps": [
+        {
+            "name": "BossKilling",
+            "id": "c056eb04-4ea6-4411-8b92-6e737fcef799",
+            "actions": [
+                {
+                    "name": "Kill",
+                    "type": "Button",
+                    "id": "0fe01527-6ef5-44e0-8389-fec540b9870a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "1320ffdb-22cb-45b0-bbd0-e8e2f933b0a5",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Controller",
+                    "action": "Kill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "Controller",
+            "bindingGroup": "Controller",
+            "devices": [
+                {
+                    "devicePath": "<Gamepad>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
+}
