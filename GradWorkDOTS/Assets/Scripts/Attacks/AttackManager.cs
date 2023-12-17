@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Vital.ObjectPools;
+using Unity.Entities;
 
 namespace Gradwork.Attacks
 {
-    public class AttackManager
+    public partial class AttackManager : SystemBase
     {
         List<BirdModel> _birdModels;
         List<ObstaclesModel> _obstaclesModels;
@@ -27,9 +28,9 @@ namespace Gradwork.Attacks
             {
                 if (model.IsViewActive)
                 {
-                    model.SetPosition(model.Position + (model.Speed * Time.fixedDeltaTime * model.Forward));
+                    model.SetPosition(model.Position + (model.Speed * SystemAPI.Time.fixedDeltaTime * model.Forward));
                     CheckDistanceFromObstacles(model);
-                    model.TimeAlive += Time.deltaTime;
+                    model.TimeAlive += SystemAPI.Time.fixedDeltaTime;
                 }
             }
         }
@@ -70,13 +71,18 @@ namespace Gradwork.Attacks
                     return;
                 }
 
-                var rotation = Quaternion.AngleAxis(model.RotationAroundObjectSpeed * Time.fixedDeltaTime, Vector3.up);
+                var rotation = Quaternion.AngleAxis(model.RotationAroundObjectSpeed * SystemAPI.Time.fixedDeltaTime, Vector3.up);
                 bridDirection = rotation * bridDirection * obstacle.Radius;
                 model.SetPosition(bridDirection + obstacle.Position);
                 
                 
                 
             }
+        }
+
+        protected override void OnUpdate()
+        {
+            throw new NotImplementedException();
         }
     }
 }
