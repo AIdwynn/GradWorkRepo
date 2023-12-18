@@ -7,7 +7,7 @@ using Unity.Entities;
 
 namespace Gradwork.Attacks
 {
-    public partial class AttackManager : SystemBase
+    public partial class AttackManager
     {
         List<BirdModel> _birdModels;
         List<ObstaclesModel> _obstaclesModels;
@@ -78,11 +78,6 @@ namespace Gradwork.Attacks
                 
                 
             }
-        }
-
-        protected override void OnUpdate()
-        {
-            throw new NotImplementedException();
         }
     }
 }
