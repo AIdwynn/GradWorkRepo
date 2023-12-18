@@ -28,9 +28,9 @@ namespace Gradwork.Attacks
             {
                 if (model.IsViewActive)
                 {
-                    model.SetPosition(model.Position + (model.Speed * SystemAPI.Time.fixedDeltaTime * model.Forward));
+                    model.SetPosition(model.Position + (model.Speed * Time.fixedDeltaTime * model.Forward));
                     CheckDistanceFromObstacles(model);
-                    model.TimeAlive += SystemAPI.Time.fixedDeltaTime;
+                    model.TimeAlive += Time.fixedDeltaTime;
                 }
             }
         }
@@ -71,7 +71,7 @@ namespace Gradwork.Attacks
                     return;
                 }
 
-                var rotation = Quaternion.AngleAxis(model.RotationAroundObjectSpeed * SystemAPI.Time.fixedDeltaTime, Vector3.up);
+                var rotation = Quaternion.AngleAxis(model.RotationAroundObjectSpeed * Time.fixedDeltaTime, Vector3.up);
                 bridDirection = rotation * bridDirection * obstacle.Radius;
                 model.SetPosition(bridDirection + obstacle.Position);
                 
