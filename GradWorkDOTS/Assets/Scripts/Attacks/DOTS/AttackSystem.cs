@@ -18,7 +18,6 @@ namespace Gradwork.Attacks.DOTS
         private int amountPerWave;
         private float3 spawnPoint;
         
-        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             timePassed = 0;
@@ -29,8 +28,7 @@ namespace Gradwork.Attacks.DOTS
             state.RequireForUpdate<Spawner>();
             //state.RequireForUpdate<Execute.EnableableComponents>();
         }
-
-        [BurstCompile]
+        
         public void OnUpdate(ref SystemState state)
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
@@ -41,23 +39,40 @@ namespace Gradwork.Attacks.DOTS
                 SpawnWave(ref state);
             }
             
-            var obstaclesQuery = SystemAPI.Query<RefRO<Obstacle>>();
-            Obstacle[] obstacles = new Obstacle[obstaclesQuery.Count()];
-            int i = 0;
-            foreach(var obstacle in obstaclesQuery)
+
+            var i = 0;
+
+            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
             {
-                obstacles[i] = obstacle.ValueRO; 
                 i++;
             }
+            
+            NativeArray<float3> obstaclePositions = new NativeArray<float3>(i, Allocator.TempJob);
+            NativeArray<float> obstacleRadiuses = new NativeArray<float>(i, Allocator.TempJob);
+            i = 0;
+            
+            foreach(var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
+            {
+                obstaclePositions[i] = obstacle.ValueRO.Position;
+                obstacleRadiuses[i] = obstacle.ValueRO.Radius;
+                i++;
+            }
+            
             
             var job = new AttackJob
             {
                 deltaTime = deltaTime,
                 SpawnPoint = spawnPoint,
-                obstacles = obstacles
+                obstaclePositions = obstaclePositions,
+                obstacleRadiuses = obstacleRadiuses
             };
-            job.Schedule();
+            state.Dependency = job.Schedule(state.Dependency);
+            state.Dependency.Complete();
+            obstaclePositions.Dispose();
+            obstacleRadiuses.Dispose();
             
+
+
 
 
         }
@@ -81,18 +96,18 @@ namespace Gradwork.Attacks.DOTS
         private Vector3 GetRotation(int i)
         {
             var angle = (360f / amountPerWave) * i;
-            return new Vector3(0, angle, 0);
+            return new Vector3(angle, 0, 0);
         }
     }
     
-    [BurstCompile]
     partial struct AttackJob : IJobEntity
     {
         public float deltaTime;
         public float3 SpawnPoint;
-        public Obstacle[] obstacles;
+        public NativeArray<float3> obstaclePositions;
+        public NativeArray<float> obstacleRadiuses;
 
-        void Execute(ref LocalTransform transform, ref PostTransformMatrix postTransform, ref Bird Bird)
+        void Execute(ref LocalTransform transform, ref Bird Bird)
         {
             transform.Position += transform.Forward() * Bird.Speed * deltaTime;
             CheckDistanceFromObstacles(ref transform, ref Bird);
@@ -101,44 +116,46 @@ namespace Gradwork.Attacks.DOTS
         
         private void CheckDistanceFromObstacles(ref LocalTransform transform, ref Bird Bird)
         {
-            foreach (var obstacle in obstacles)
+            for (int i = 0; i < obstaclePositions.Length; i++)
             {
-                CheckDistanceFromObstacle(ref transform, ref Bird, obstacle);
+                var obstaclePosition = obstaclePositions[i];
+                var obstacleRadius = obstacleRadiuses[i];
+                CheckDistanceFromObstacle(ref transform, ref Bird, obstaclePosition, obstacleRadius);
             }
         }
         
-        private void CheckDistanceFromObstacle(ref LocalTransform transform, ref Bird Bird, in Obstacle obstacle)
+        private void CheckDistanceFromObstacle(ref LocalTransform transform, ref Bird Bird, in float3 obstacle, in float obstacleRadius)
         {
             if (CompareFloat3(Bird.RotatingAround, float3.zero))
             {
-                var subtract = (transform.Position - obstacle.Position);
+                var subtract = (transform.Position - obstacle);
                 float distance = CalculateMagnitude(subtract);
-                if (distance < obstacle.Radius)
+                if (distance < obstacleRadius)
                 {
                     var birdToSpawn = CalculateMagnitude(SpawnPoint - transform.Position);
-                    var obstacleToSpawn = CalculateMagnitude(SpawnPoint - obstacle.Position);
+                    var obstacleToSpawn = CalculateMagnitude(SpawnPoint - obstacle);
                     if (birdToSpawn < obstacleToSpawn)
                     {
-                        Bird.RotatingAround = obstacle.Position;
+                        Bird.RotatingAround = obstacle;
                     }
                     
                 }
             }
-            else if(CompareFloat3(Bird.RotatingAround,obstacle.Position))
+            else if(CompareFloat3(Bird.RotatingAround,obstacle))
             {
-                float3 bridDirection = (transform.Position - obstacle.Position);
+                float3 bridDirection = CalculateNormalised(transform.Position - obstacle);
                 
                 var birdToSpawn = CalculateMagnitude(SpawnPoint - transform.Position);
-                var obstacleToSpawn = CalculateMagnitude(SpawnPoint - obstacle.Position);
+                var obstacleToSpawn = CalculateMagnitude(SpawnPoint - obstacle);
                 if (birdToSpawn > obstacleToSpawn)
                 {
                     Bird.RotatingAround = float3.zero;
                     return;
                 }
 
-                var rotation = Quaternion.AngleAxis(Bird.RotationAroundObjectSpeed * Time.fixedDeltaTime, Vector3.up);
-                bridDirection = rotation * bridDirection * obstacle.Radius;
-                transform.Position = (bridDirection + obstacle.Position);
+                var rotation = Quaternion.AngleAxis(Bird.RotationAroundObjectSpeed * deltaTime, Vector3.up);
+                bridDirection = rotation * bridDirection * obstacleRadius;
+                transform.Position = (bridDirection + obstacle);
                 
                 
                 
