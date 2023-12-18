@@ -96,7 +96,7 @@ namespace Gradwork.Attacks.DOTS
         private Vector3 GetRotation(int i)
         {
             var angle = (360f / amountPerWave) * i;
-            return new Vector3(angle, 0, 0);
+            return new Vector3(0, angle, 0);
         }
     }
     
