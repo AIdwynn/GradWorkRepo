@@ -113,7 +113,7 @@ GameObject:
   - component: {fileID: 2965652958245308749}
   - component: {fileID: 1963347638204893571}
   - component: {fileID: 4063059644658598744}
-  - component: {fileID: 8158042222424281795}
+  - component: {fileID: 5181941666006254681}
   m_Layer: 5
   m_Name: FPS COUNTER
   m_TagString: Untagged
@@ -237,7 +237,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &8158042222424281795
+--- !u!114 &5181941666006254681
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -246,7 +246,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7128287170250850229}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6b1a3365b4a91e40ac8876aa7d7b1ab, type: 3}
+  m_Script: {fileID: 11500000, guid: 034a7bc6f4ffe324b898405f6f894e95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _textMeshPro: {fileID: 4063059644658598744}

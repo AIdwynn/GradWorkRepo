@@ -41,11 +41,11 @@ namespace Vital.ObjectPools
             return this;
         }
         
-        public ObjectPoolManager CreateObjectPool<T> (string name, int initialPoolSize, bool canGrow)
+        public ObjectPoolManager CreateObjectPool<T> (GameObject objectView, string name, int initialPoolSize, bool canGrow)
             where T : IPoolableScript
         {
             if(_pools.ContainsKey(name)) { Debug.Log($"Pool already exists for {name}"); return this; }
-            if(!_pools.TryAdd(name, ScriptObjectPool<T>.CreateObjectPool(initialPoolSize, canGrow)))
+            if(!_pools.TryAdd(name, ScriptObjectPool<T>.CreateObjectPool(objectView, initialPoolSize, canGrow, _parent)))
                 Debug.Log($"Pool already exists for {name}");
             return this;
         }

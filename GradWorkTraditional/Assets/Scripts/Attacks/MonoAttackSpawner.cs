@@ -37,8 +37,7 @@ namespace Gradwork.Attacks
             _objectPoolManager = new ObjectPoolManager();
             new BirdModel();
 
-            _objectPoolManager.CreateObjectPool(_attackPrefab, _attackPoolSize, true)
-                .CreateObjectPool<BirdModel>(BirdModel.NameStatic, _attackPoolSize, true);
+            _objectPoolManager.CreateObjectPool<BirdModel>(_attackPrefab, BirdModel.NameStatic, _attackPoolSize, true);
             _objectPoolManager.TryGetScriptPool<BirdModel>(BirdModel.NameStatic, out var birdPool);
             
             
@@ -58,11 +57,9 @@ namespace Gradwork.Attacks
         {
             for (int i = 0; i < _amountPerWave; i++)
             {
-                if (_objectPoolManager.TryGet(_attackPrefab.name, out GameObject attack) &&
-                    _objectPoolManager.TryGetScript(BirdModel.NameStatic, out BirdModel birdModel))
+                if (_objectPoolManager.TryGetScript(BirdModel.NameStatic, out BirdModel birdModel))
                 {
-                    birdModel.SetView(attack).SetPosition(transform.position).SetRotation(GetRotation(i)).SetActive(true);
-                    attack.SetActive(true);
+                    birdModel.SetPosition(transform.position).SetRotation(GetRotation(i)).SetActive(true);
                 }
             }
 
