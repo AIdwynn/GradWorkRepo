@@ -3,10 +3,12 @@ using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Gradwork.Attacks.DOTS
 {
@@ -17,7 +19,7 @@ namespace Gradwork.Attacks.DOTS
         private float timeToSpawn;
         private int amountPerWave;
         private float3 spawnPoint;
-        
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             timePassed = 0;
@@ -26,9 +28,10 @@ namespace Gradwork.Attacks.DOTS
             spawnPoint = new float3(0, 0, 0);
             
             state.RequireForUpdate<Spawner>();
+            state.RequireForUpdate<BeginSimulationEntityCommandBufferSystem.Singleton>();
             //state.RequireForUpdate<Execute.EnableableComponents>();
         }
-        
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
@@ -57,8 +60,8 @@ namespace Gradwork.Attacks.DOTS
                 obstacleRadiuses[i] = obstacle.ValueRO.Radius;
                 i++;
             }
-            
-            
+
+            #region EntityJob
             var job = new AttackJob
             {
                 deltaTime = deltaTime,
@@ -66,17 +69,77 @@ namespace Gradwork.Attacks.DOTS
                 obstaclePositions = obstaclePositions,
                 obstacleRadiuses = obstacleRadiuses
             };
-            state.Dependency = job.Schedule(state.Dependency);
+            state.Dependency = job.ScheduleParallel(state.Dependency);
+            #endregion
+
+            #region AspectEntityJob
+            /*var job = new AspectAttackJob
+            {
+                deltaTime = deltaTime,
+                SpawnPoint = spawnPoint,
+                obstaclePositions = obstaclePositions,
+                obstacleRadiuses = obstacleRadiuses
+            };
+            state.Dependency = job.Schedule(state.Dependency);*/
+
+            #endregion
+
+            #region ParallelJob
+
+            /*i = 0;
+            
+            foreach (var (transform, bird) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Bird>>())
+            {
+                i++;
+            }
+            
+            NativeArray<LocalTransform> transforms = new NativeArray<LocalTransform>(i, Allocator.TempJob);
+            NativeArray<Bird> birds = new NativeArray<Bird>(i, Allocator.TempJob);
+            i = 0;
+            
+            foreach(var (transform, bird) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Bird>>())
+            {
+                transforms[i] = transform.ValueRW;
+                birds[i] = bird.ValueRW;
+                i++;
+            }
+
+            var parallelAttackJob = new ParallelAttackJob()
+            {
+                deltaTime = deltaTime,
+                SpawnPoint = spawnPoint,
+                obstaclePositions = obstaclePositions,
+                obstacleRadiuses = obstacleRadiuses,
+                
+                transforms = transforms,
+                birds = birds
+            };
+            JobHandle parallelHandle = parallelAttackJob.Schedule(transforms.Length, 100);
+            state.Dependency = parallelHandle;*/
+            #endregion
+
             state.Dependency.Complete();
+
             obstaclePositions.Dispose();
             obstacleRadiuses.Dispose();
+            /*transforms.Dispose();
+            birds.Dispose();*/
             
-
-
+            var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+            
+            foreach (var (bird, entity) in SystemAPI.Query<RefRW<Bird>>().WithEntityAccess())
+            {
+                bird.ValueRW.TimeAlive += deltaTime;
+                if (bird.ValueRO.TimeAlive > bird.ValueRO.Lifetime)
+                {
+                    ecb.DestroyEntity(entity);
+                }
+            }
 
 
         }
-
+        [BurstCompile]
         private void SpawnWave(ref SystemState state)
         {
             var prefab = SystemAPI.GetSingleton<Spawner>().Prefab;
@@ -100,82 +163,5 @@ namespace Gradwork.Attacks.DOTS
         }
     }
     
-    partial struct AttackJob : IJobEntity
-    {
-        public float deltaTime;
-        public float3 SpawnPoint;
-        public NativeArray<float3> obstaclePositions;
-        public NativeArray<float> obstacleRadiuses;
-
-        void Execute(ref LocalTransform transform, ref Bird Bird)
-        {
-            transform.Position += transform.Forward() * Bird.Speed * deltaTime;
-            CheckDistanceFromObstacles(ref transform, ref Bird);
-            Bird.TimeAlive += deltaTime;
-        }
-        
-        private void CheckDistanceFromObstacles(ref LocalTransform transform, ref Bird Bird)
-        {
-            for (int i = 0; i < obstaclePositions.Length; i++)
-            {
-                var obstaclePosition = obstaclePositions[i];
-                var obstacleRadius = obstacleRadiuses[i];
-                CheckDistanceFromObstacle(ref transform, ref Bird, obstaclePosition, obstacleRadius);
-            }
-        }
-        
-        private void CheckDistanceFromObstacle(ref LocalTransform transform, ref Bird Bird, in float3 obstacle, in float obstacleRadius)
-        {
-            if (CompareFloat3(Bird.RotatingAround, float3.zero))
-            {
-                var subtract = (transform.Position - obstacle);
-                float distance = CalculateMagnitude(subtract);
-                if (distance < obstacleRadius)
-                {
-                    var birdToSpawn = CalculateMagnitude(SpawnPoint - transform.Position);
-                    var obstacleToSpawn = CalculateMagnitude(SpawnPoint - obstacle);
-                    if (birdToSpawn < obstacleToSpawn)
-                    {
-                        Bird.RotatingAround = obstacle;
-                    }
-                    
-                }
-            }
-            else if(CompareFloat3(Bird.RotatingAround,obstacle))
-            {
-                float3 bridDirection = CalculateNormalised(transform.Position - obstacle);
-                
-                var birdToSpawn = CalculateMagnitude(SpawnPoint - transform.Position);
-                var obstacleToSpawn = CalculateMagnitude(SpawnPoint - obstacle);
-                if (birdToSpawn > obstacleToSpawn)
-                {
-                    Bird.RotatingAround = float3.zero;
-                    return;
-                }
-
-                var rotation = Quaternion.AngleAxis(Bird.RotationAroundObjectSpeed * deltaTime, Vector3.up);
-                bridDirection = rotation * bridDirection * obstacleRadius;
-                transform.Position = (bridDirection + obstacle);
-                
-                
-                
-            }
-        }
-        
-        private float CalculateMagnitude(float3 vector)
-        {
-            return Mathf.Sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
-        }
-        
-        private float3 CalculateNormalised(float3 vector)
-        {
-            float magnitude = CalculateMagnitude(vector);
-            return new float3(vector.x / magnitude, vector.y / magnitude, vector.z / magnitude);
-        }
-        
-        private bool CompareFloat3(float3 a, float3 b)
-        {
-            return a.x == b.x && a.y == b.y && a.z == b.z;
-        }
-    }
+   
 }
