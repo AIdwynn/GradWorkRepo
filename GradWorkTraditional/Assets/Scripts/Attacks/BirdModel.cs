@@ -2,11 +2,13 @@ using System;
 using System.Numerics;
 using UnityEngine;
 using Vital.ObjectPools;
+using Vital.Spatial_Partitioning;
+using Grid = Vital.Spatial_Partitioning.Grid;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Gradwork.Attacks
 {
-    public class BirdModel : IPoolableScript
+    public class BirdModel : Unit, IPoolableScript
     {
         GameObject IPoolableScript.GO
         {
@@ -110,11 +112,11 @@ namespace Gradwork.Attacks
 
         public static string NameStatic { get; private set; }
 
-        public BirdModel()
+        public BirdModel() : base()
         {
             NameStatic = typeof(BirdModel).ToString();
             _poolManager = ObjectPoolManager.Instance;
-            Lifetime = 10;
+            Lifetime = 10f;
             Speed = 10f;
             RotationAroundObjectSpeed = 10f;
         }
@@ -152,6 +154,7 @@ namespace Gradwork.Attacks
 
         protected void ReturnToPool()
         {
+            Grid.Instance.RemoveUnit(this);
             _poolManager.TryReturnScript(NameStatic, this);
         }
     }

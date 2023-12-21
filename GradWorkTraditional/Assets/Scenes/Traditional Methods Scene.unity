@@ -1517,7 +1517,7 @@ PrefabInstance:
     - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
         type: 3}
       propertyPath: _amountPerWave
-      value: 150
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
         type: 3}
