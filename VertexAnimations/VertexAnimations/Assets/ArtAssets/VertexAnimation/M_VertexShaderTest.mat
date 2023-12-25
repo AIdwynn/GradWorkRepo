@@ -32,6 +32,6 @@ Material:
     m_Floats:
     - _AnimationSpeed: 5
     m_Colors:
-    - _PosMax: {r: 1, g: 0.23, b: 0.37, a: 0}
+    - _PosMax: {r: 1, g: 0.7, b: 0.53, a: 0}
     - _PosMin: {r: -1, g: -0.34, b: -0.53, a: 0}
   m_BuildTextureStacks: []

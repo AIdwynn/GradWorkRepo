@@ -6,7 +6,7 @@ using UnityEngine.Animations;
 using UnityEngine.Playables;
 using Object = UnityEngine.Object;
 
-[CustomEditor(typeof(Animator))]
+//[CustomEditor(typeof(Animator))]
 public class SCRED_EncodeToVertexAnimation :Editor
 {
     public string pathToSave = "Assets/ArtAssets/Animations/VertexAnimations";
