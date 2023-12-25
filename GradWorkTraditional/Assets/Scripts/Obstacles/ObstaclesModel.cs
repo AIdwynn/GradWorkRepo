@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine;using Vital.Spatial_Partitioning;
 
-public class ObstaclesModel
+public class ObstaclesModel : Unit
 {
     public Vector3 Position
     {

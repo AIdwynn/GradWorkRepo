@@ -2,15 +2,35 @@ using System;
 using System.Numerics;
 using UnityEngine;
 using Vital.ObjectPools;
+using Vital.Spatial_Partitioning;
+using Grid = Vital.Spatial_Partitioning.Grid;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Gradwork.Attacks
 {
-    public class BirdModel : IPoolableScript
+    public class BirdModel : Unit, IPoolableScript
     {
-        public GameObject GO { get; protected set; }
+        GameObject IPoolableScript.GO
+        {
+            get => GO;
+            set => GO = value;
+        }
+        
+        public GameObject GO
+        {
+            get
+            {
+                return _go;
+            }
+            protected set
+            {
+                _go = value;
+                Transform = value.transform;
+                TimeAlive = 0f;
+            }
+        }
+        private GameObject _go;
         public Transform Transform { get; protected set; }
-        public BirdView View { get; protected set; }
 
         public Vector3 Position
         {
@@ -78,6 +98,8 @@ namespace Gradwork.Attacks
             set => IsViewActive = value;
         }
 
+
+
         public bool IsViewActive
         {
             get => _isActive;
@@ -90,23 +112,13 @@ namespace Gradwork.Attacks
 
         public static string NameStatic { get; private set; }
 
-        public BirdModel()
+        public BirdModel() : base()
         {
             NameStatic = typeof(BirdModel).ToString();
             _poolManager = ObjectPoolManager.Instance;
-            Lifetime = 10;
+            Lifetime = 10f;
             Speed = 10f;
             RotationAroundObjectSpeed = 10f;
-        }
-
-        public BirdModel SetView(GameObject view)
-        {
-            GO = view;
-            Transform = view.transform;
-            View = view.GetComponent<BirdView>();
-            View.HitEvent += (s, e) => OnHit();
-            TimeAlive = 0f;
-            return this;
         }
 
         private void OnHit()
@@ -136,12 +148,13 @@ namespace Gradwork.Attacks
         public BirdModel SetActive(bool isActive)
         {
             IsViewActive = isActive;
+            if(isActive) TimeAlive = 0f;
             return this;
         }
 
         protected void ReturnToPool()
         {
-            _poolManager.TryReturn(GO.name, GO);
+            Grid.Instance.RemoveUnit(this);
             _poolManager.TryReturnScript(NameStatic, this);
         }
     }

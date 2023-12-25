@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Vital.ObjectPools;
+using Grid = Vital.Spatial_Partitioning.Grid;
+using Vital.Spatial_Partitioning;
 
 namespace Gradwork.Attacks
 {
@@ -23,16 +25,72 @@ namespace Gradwork.Attacks
 
         public void Update()
         {
+            var grid = Grid.Instance;
             foreach (var model in _birdModels)
             {
                 if (model.IsViewActive)
                 {
                     model.SetPosition(model.Position + (model.Speed * Time.fixedDeltaTime * model.Forward));
-                    CheckDistanceFromObstacles(model);
+                    var newCell = grid.PositionToCell(model.Position.x, model.Position.z);
+                    if(newCell.x != model.x || newCell.y != model.y)
+                    {
+                        grid.UnitMoved(model, newCell);
+                    }
                     model.TimeAlive += Time.deltaTime;
+
+#if UNITY_EDITOR
+                    var next = model.Next as BirdModel;
+                    if (next != null)
+                    {
+                        Debug.DrawLine(model.Position, next.Position, Color.red);
+                    }
+                    var prev = model.Prev as BirdModel;
+                    if (prev != null)
+                    {
+                        Debug.DrawLine(model.Position, prev.Position, Color.blue);
+                    }
+                    grid.GetDrawingInfromation(out _, out var cellSizee, out var offset);
+                    var x = model.x * cellSizee + offset.X;
+                    var z = model.y * cellSizee + offset.Z;
+                    Debug.DrawLine(model.Position, new Vector3(x,0,z), Color.yellow);
+#endif
+
                 }
             }
+            
+            foreach (var obstacle in _obstaclesModels)
+            {
+                var cells = (obstacle.x, obstacle.y);
+                cells.x -= 1;
+                cells.y -= 1;
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        CheckCollisionInCell(grid, cells, obstacle);
+                        cells.x += 1;
+     
+                    }
+                    cells.x -= 3;
+                    cells.y += 1;
+                }
+ 
+
+            }
         }
+
+        private void CheckCollisionInCell(Grid grid, (int x, int y) cells, ObstaclesModel obstacle)
+        {
+            var unit = grid.GetBirdsInCell(cells);
+            if (unit == null)
+                return;
+            while (unit.Next != null)
+            {
+                CheckDistanceFromObstacle(unit as BirdModel, obstacle);
+                unit = unit.Next;
+            }
+        }
+
 
         private void CheckDistanceFromObstacles(BirdModel model)
         {

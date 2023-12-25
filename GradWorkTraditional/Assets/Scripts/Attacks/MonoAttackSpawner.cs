@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Vital.ObjectPools;
+using Grid = Vital.Spatial_Partitioning.Grid;
+using Vital.Spatial_Partitioning;
 
 namespace Gradwork.Attacks
 {
@@ -23,6 +25,7 @@ namespace Gradwork.Attacks
         private List<ObstaclesModel> _obstaclesModels = new List<ObstaclesModel>();
         private ObjectPoolManager _objectPoolManager;
         private AttackManager _attackManager;
+        private Grid _grid;
 
         private void Awake()
         {
@@ -37,8 +40,7 @@ namespace Gradwork.Attacks
             _objectPoolManager = new ObjectPoolManager();
             new BirdModel();
 
-            _objectPoolManager.CreateObjectPool(_attackPrefab, _attackPoolSize, true)
-                .CreateObjectPool<BirdModel>(BirdModel.NameStatic, _attackPoolSize, true);
+            _objectPoolManager.CreateObjectPool<BirdModel>(_attackPrefab, BirdModel.NameStatic, _attackPoolSize, true);
             _objectPoolManager.TryGetScriptPool<BirdModel>(BirdModel.NameStatic, out var birdPool);
             
             
@@ -51,6 +53,13 @@ namespace Gradwork.Attacks
             }
             
             _attackManager = new AttackManager(_obstaclesModels, transform.position);
+            
+            _grid = new Grid();
+            foreach (var obstacle in _obstaclesModels)
+            {
+                _grid.AddObstacle(obstacle);
+            }
+            
             SpawnAttacks();
         }
 
@@ -58,11 +67,10 @@ namespace Gradwork.Attacks
         {
             for (int i = 0; i < _amountPerWave; i++)
             {
-                if (_objectPoolManager.TryGet(_attackPrefab.name, out GameObject attack) &&
-                    _objectPoolManager.TryGetScript(BirdModel.NameStatic, out BirdModel birdModel))
+                if (_objectPoolManager.TryGetScript(BirdModel.NameStatic, out BirdModel birdModel))
                 {
-                    birdModel.SetView(attack).SetPosition(transform.position).SetRotation(GetRotation(i)).SetActive(true);
-                    attack.SetActive(true);
+                    birdModel.SetPosition(transform.position).SetRotation(GetRotation(i)).SetActive(true);
+                    _grid.AddBird(birdModel, _grid.PositionToCell(transform.position.x, transform.position.z));
                 }
             }
 
