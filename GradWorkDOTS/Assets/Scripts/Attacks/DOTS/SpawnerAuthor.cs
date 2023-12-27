@@ -5,7 +5,7 @@ namespace Gradwork.Attacks.DOTS
 {
     public class SpawnerAuthor : MonoBehaviour
     {
-        public BirdAuthor Prefab;
+        public MonoBehaviour Prefab;
         
         class Baker : Baker<SpawnerAuthor>
         {
