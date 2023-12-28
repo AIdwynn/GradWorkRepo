@@ -1516,8 +1516,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
         type: 3}
+      propertyPath: _attackPrefab
+      value: 
+      objectReference: {fileID: 6392790016983472278, guid: 3f9ec48f17e6430419f41a49e9b50929,
+        type: 3}
+    - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
+        type: 3}
       propertyPath: _amountPerWave
-      value: 15
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
         type: 3}

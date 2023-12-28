@@ -49,9 +49,9 @@ namespace Vital.Spatial_Partitioning
                 bird.Next.Prev = bird;
         }
 
-        public void AddObstacle(Unit obstacle)
+        public void AddObstacle(Unit obstacle, (int x, int y) Position)
         {
-            var (x,y) = PositionToCell(obstacle.x, obstacle.y);
+            var (x,y) = Position;
             if(x == -1 || y == -1)
                 return;
 
@@ -137,6 +137,8 @@ namespace Vital.Spatial_Partitioning
         public void RemoveUnit(Unit bird)
         {
             Unit currentTop = birdsCells[bird.x, bird.y];
+            
+            
             if (currentTop.id == bird.id)
             {
                 var nextTop = currentTop.Next;

@@ -32,13 +32,15 @@ namespace Gradwork.Attacks
                 {
                     model.SetPosition(model.Position + (model.Speed * Time.fixedDeltaTime * model.Forward));
                     var newCell = grid.PositionToCell(model.Position.x, model.Position.z);
-                    if(newCell.x != model.x || newCell.y != model.y)
+                    if (newCell.x != model.x || newCell.y != model.y)
                     {
                         grid.UnitMoved(model, newCell);
                     }
+
                     model.TimeAlive += Time.deltaTime;
 
 #if UNITY_EDITOR
+                    /*
                     var next = model.Next as BirdModel;
                     if (next != null)
                     {
@@ -53,11 +55,12 @@ namespace Gradwork.Attacks
                     var x = model.x * cellSizee + offset.X;
                     var z = model.y * cellSizee + offset.Z;
                     Debug.DrawLine(model.Position, new Vector3(x,0,z), Color.yellow);
+                    */
+                    model.DRAWRAABB();
 #endif
-
                 }
             }
-            
+
             foreach (var obstacle in _obstaclesModels)
             {
                 var cells = (obstacle.x, obstacle.y);
@@ -69,13 +72,11 @@ namespace Gradwork.Attacks
                     {
                         CheckCollisionInCell(grid, cells, obstacle);
                         cells.x += 1;
-     
                     }
+
                     cells.x -= 3;
                     cells.y += 1;
                 }
- 
-
             }
         }
 
@@ -113,13 +114,12 @@ namespace Gradwork.Attacks
                     {
                         model.rotating = obstacle;
                     }
-                    
                 }
             }
-            else if(model.rotating == obstacle)
+            else if (model.rotating == obstacle)
             {
                 Vector3 bridDirection = (model.Position - obstacle.Position).normalized;
-                
+
                 var birdToSpawn = (_spawnPoint - model.Position).magnitude;
                 var obstacleToSpawn = (_spawnPoint - obstacle.Position).magnitude;
                 if (birdToSpawn > obstacleToSpawn)
@@ -131,9 +131,6 @@ namespace Gradwork.Attacks
                 var rotation = Quaternion.AngleAxis(model.RotationAroundObjectSpeed * Time.fixedDeltaTime, Vector3.up);
                 bridDirection = rotation * bridDirection * obstacle.Radius;
                 model.SetPosition(bridDirection + obstacle.Position);
-                
-                
-                
             }
         }
     }

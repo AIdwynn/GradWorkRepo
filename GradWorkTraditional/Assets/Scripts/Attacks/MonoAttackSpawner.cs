@@ -57,7 +57,7 @@ namespace Gradwork.Attacks
             _grid = new Grid();
             foreach (var obstacle in _obstaclesModels)
             {
-                _grid.AddObstacle(obstacle);
+                _grid.AddObstacle(obstacle, _grid.PositionToCell(obstacle.Position.x, obstacle.Position.z));
             }
             
             SpawnAttacks();
