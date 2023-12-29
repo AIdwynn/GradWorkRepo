@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Vital;
 using Vital.ObjectPools;
 using Grid = Vital.Spatial_Partitioning.Grid;
 using Vital.Spatial_Partitioning;
@@ -56,7 +57,7 @@ namespace Gradwork.Attacks
                     var z = model.y * cellSizee + offset.Z;
                     Debug.DrawLine(model.Position, new Vector3(x,0,z), Color.yellow);
                     */
-                    model.DRAWRAABB();
+                    //model.DRAWRAABB();
 #endif
                 }
             }
@@ -76,6 +77,32 @@ namespace Gradwork.Attacks
 
                     cells.x -= 3;
                     cells.y += 1;
+                }
+            }
+
+            foreach (var player in Gameloop.Instance.players)
+            {
+                var position = player.transform.position;
+                var radius = player.radius;
+
+                var cell = grid.PositionToCell(position.x, position.z);
+                cell.x -= 1;
+                cell.y -= 1;
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        var birds = grid.GetBirdsInCell(cell);
+                        while (birds != null)
+                        {
+                            if ((birds as BirdModel).CheckForCollision(position, radius)) break;
+                            birds = birds.Next;
+                        }
+                        cell.x += 1;
+                    }
+
+                    cell.x -= 3;
+                    cell.y += 1;
                 }
             }
         }

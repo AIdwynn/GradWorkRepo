@@ -21,6 +21,7 @@ public class SCRMO_CharacterController : MonoBehaviour
     [SerializeField] private CapsuleCollider _rollingCollider;
     [SerializeField] private CapsuleCollider _slidingCollider;
     [SerializeField] private CapsuleCollider _jumpingCollider;
+    public float radius = 0.25f;
 
     [Header("Balancing Values")] [SerializeField]
     private float _parryTime = 0.2f;

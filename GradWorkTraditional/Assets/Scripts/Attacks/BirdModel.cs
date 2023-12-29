@@ -1,9 +1,9 @@
 using System;
-using System.Numerics;
 using UnityEngine;
 using Vital.ObjectPools;
 using Vital.Spatial_Partitioning;
 using Grid = Vital.Spatial_Partitioning.Grid;
+using Matrix4x4 = UnityEngine.Matrix4x4;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Gradwork.Attacks
@@ -86,12 +86,13 @@ namespace Gradwork.Attacks
         private float _timeAlive = 0f;
 
         protected BoundingBox AABB { get; set; }
+        protected BoundingBox Collider { get; set; }
 
-        public BoundingBox RAABB
+        protected BoundingBox RCollider
         {
             get
             {
-                var boundingBox = AABB.RAABB(Rotation.y);
+                var boundingBox = Collider.RAABB(Rotation.y);
                 return boundingBox;
             }
         }
@@ -129,9 +130,26 @@ namespace Gradwork.Attacks
             Speed = 10f;
             RotationAroundObjectSpeed = 10f;
             var topNorthernCorner = new Vector3(0.273f, 0.229f, 0.8965f);
-            AABB = new BoundingBox(topNorthernCorner, -topNorthernCorner);
+            Collider = new BoundingBox(topNorthernCorner, -topNorthernCorner);
+            var max = Mathf.Max(topNorthernCorner.x, Mathf.Max(topNorthernCorner.y, topNorthernCorner.z));
+            var AABBCorner = new Vector3(max, max, max);
+            AABB = new BoundingBox(AABBCorner, -AABBCorner);
         }
 
+        public bool CheckForCollision(Vector3 playerPosition, float playerRadius)
+        {
+            if (AABB.CheckCollisionWithAABB(Position, playerPosition, playerRadius))
+            {
+                if(Collider.CheckCollisionsWithRAABB(Position, Rotation, playerPosition, playerRadius))
+                {
+                    OnHit();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
         private void OnHit()
         {
             SCR_EventHelper.TrySendEvent(HitEvent, this);
@@ -173,7 +191,7 @@ namespace Gradwork.Attacks
 #if UNITY_EDITOR
         public void DRAWRAABB()
         {
-            var boundingBox = RAABB;
+            var boundingBox = RCollider;
 
             Debug.DrawLine(boundingBox.TopNorthernRight + Position, boundingBox.BottemNorthernRight + Position, Color.yellow);
             Debug.DrawLine(boundingBox.TopNorthernRight + Position, boundingBox.TopSouthernRight + Position, Color.yellow);
@@ -187,6 +205,21 @@ namespace Gradwork.Attacks
             Debug.DrawLine(boundingBox.BottemNorthernLeft + Position, boundingBox.TopNorthernLeft + Position, Color.yellow);
             Debug.DrawLine(boundingBox.BottemNorthernLeft + Position, boundingBox.BottemSouthernLeft + Position, Color.yellow);
             Debug.DrawLine(boundingBox.BottemNorthernLeft + Position, boundingBox.BottemNorthernRight + Position, Color.yellow);
+
+            boundingBox = AABB;
+            
+            Debug.DrawLine(boundingBox.TopNorthernRight + Position, boundingBox.BottemNorthernRight + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.TopNorthernRight + Position, boundingBox.TopSouthernRight + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.TopNorthernRight + Position, boundingBox.TopNorthernLeft + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.BottemSouthernRight + Position, boundingBox.BottemSouthernLeft + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.BottemSouthernRight + Position, boundingBox.BottemNorthernRight + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.BottemSouthernRight + Position, boundingBox.TopSouthernRight + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.TopSouthernLeft + Position, boundingBox.TopSouthernRight + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.TopSouthernLeft + Position, boundingBox.BottemSouthernLeft + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.TopSouthernLeft + Position, boundingBox.TopNorthernLeft + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.BottemNorthernLeft + Position, boundingBox.TopNorthernLeft + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.BottemNorthernLeft + Position, boundingBox.BottemSouthernLeft + Position, Color.magenta);
+            Debug.DrawLine(boundingBox.BottemNorthernLeft + Position, boundingBox.BottemNorthernRight + Position, Color.magenta);
         }
 #endif
     }
@@ -194,6 +227,7 @@ namespace Gradwork.Attacks
 
     public struct BoundingBox
     {
+        public Vector3 Size;
         public Vector3 TopNorthernLeft;
         public Vector3 BottemSouthernRight;
         public Vector3 TopNorthernRight;
@@ -205,7 +239,8 @@ namespace Gradwork.Attacks
 
         public BoundingBox RAABB(float angle)
         {
-            Vector3 RotatedTopNorthernLeft = RotatePoint(TopNorthernLeft, angle);
+            angle *= Mathf.Deg2Rad;
+            Vector3 RotatedTopNorthernLeft = RotatePoint(TopNorthernLeft, angle );
             Vector3 RotatedBottemSouthernRight = RotatePoint(BottemSouthernRight, angle);
             Vector3 RotatedTopNorthernRight = RotatePoint(TopNorthernRight, angle);
             Vector3 RotatedTopSouthernRight = RotatePoint(TopSouthernRight, angle);
@@ -231,6 +266,10 @@ namespace Gradwork.Attacks
             this.TopSouthernLeft = TopSouthernLeft;
             this.BottemNorthernLeft = BottemNorthernLeft;
             this.BottemSouthernLeft = BottemSouthernLeft;
+
+            Size = new Vector3(TopNorthernLeft.x - BottemSouthernRight.x,
+                TopNorthernLeft.y - BottemSouthernRight.y,
+                TopNorthernLeft.z - BottemSouthernRight.z);
         }
         
         public BoundingBox(Vector3 TopNorthernLeft, Vector3 BottemSouthernRight)
@@ -249,14 +288,47 @@ namespace Gradwork.Attacks
             TopSouthernLeft = new Vector3(Top, Southern, Left);
             BottemNorthernLeft = new Vector3(Bottem, Northern, Left);
             BottemSouthernLeft = new Vector3(Bottem, Southern, Left);
+            
+            Size = new Vector3(TopNorthernLeft.x - BottemSouthernRight.x,
+                TopNorthernLeft.y - BottemSouthernRight.y,
+                TopNorthernLeft.z - BottemSouthernRight.z);
         }
 
         private Vector3 RotatePoint(Vector3 point, float angleInRadians)
         {
             var rotatedPoint = point;
-            rotatedPoint.x = Mathf.Cos(angleInRadians) * point.x - Mathf.Sin(angleInRadians) * point.z;
-            rotatedPoint.z = Mathf.Sin(angleInRadians) * point.x + Mathf.Cos(angleInRadians) * point.z;
+            rotatedPoint.z = Mathf.Cos(angleInRadians) * point.z - Mathf.Sin(angleInRadians) * point.x;
+            rotatedPoint.x = Mathf.Sin(angleInRadians) * point.z + Mathf.Cos(angleInRadians) * point.x;
             return rotatedPoint;
         }
+
+        public bool CheckCollisionWithAABB(Vector3 thisPosition, Vector3 otherPosition, float radius)
+        {
+            var centeredPoint = otherPosition - thisPosition;
+            var direction = (thisPosition - centeredPoint).normalized;
+            centeredPoint += radius * direction;
+            
+            return centeredPoint.x >= BottemSouthernRight.x && centeredPoint.x <= TopNorthernLeft.x &&
+                   centeredPoint.y >= BottemSouthernRight.y && centeredPoint.y <= TopNorthernLeft.y &&
+                   centeredPoint.z >= BottemSouthernRight.z && centeredPoint.z <= TopNorthernLeft.z;;
+        }
+
+        public bool CheckCollisionsWithRAABB(Vector3 thisPosition, Vector3 Rotation, Vector3 otherPosition, float radius)
+        {
+            var centeredPoint = otherPosition - thisPosition;
+            var direction = (thisPosition - centeredPoint).normalized;
+            centeredPoint += radius * direction;
+            
+            Matrix4x4 beamRotationMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(Rotation), Vector3.one);
+
+            centeredPoint = beamRotationMatrix.MultiplyPoint3x4(centeredPoint);
+            
+            return centeredPoint.x >= BottemSouthernRight.x && centeredPoint.x <= TopNorthernLeft.x &&
+                   centeredPoint.y >= BottemSouthernRight.y && centeredPoint.y <= TopNorthernLeft.y &&
+                   centeredPoint.z >= BottemSouthernRight.z && centeredPoint.z <= TopNorthernLeft.z;;
+            
+            return false;
+        }
+        
     }
 }

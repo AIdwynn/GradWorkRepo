@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Vital;
 using Vital.ObjectPools;
 using Grid = Vital.Spatial_Partitioning.Grid;
 using Vital.Spatial_Partitioning;
@@ -33,6 +34,8 @@ namespace Gradwork.Attacks
             {
                 obstacles.ObstaclesCreated += (s,e) => _obstaclesModels.Add(e.ObstaclesModel);
             }
+
+            Gameloop gameloop = new Gameloop();
         }
 
         void Start()
