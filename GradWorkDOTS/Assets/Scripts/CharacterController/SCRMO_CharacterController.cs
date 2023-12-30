@@ -281,6 +281,8 @@ public class SCRMO_CharacterController : MonoBehaviour
 
     void Awake()
     {
+        new GameLoop();
+        
         Rigidbody = this.gameObject.GetComponent<Rigidbody>();
         _slidingCollider.enabled = false;
         _rollingCollider.enabled = false;

@@ -95,6 +95,20 @@ public class SCRED_AnimationWindow : EditorWindow
 
             if (allDone)
             {
+                for (int i = 0; i < inPogressVertexAnimations.Length; i++)
+                {
+                    var animation = inPogressVertexAnimations[i];
+                    var maxBounds = animation.maxBounds;
+                    var minBounds = animation.minBounds;
+                    var max = Mathf.Max(maxBounds.x, Mathf.Max(maxBounds.y, maxBounds.z));
+                    var min = Mathf.Min(minBounds.x, Mathf.Max(minBounds.y, minBounds.z));
+                    max = Mathf.Max(max, Mathf.Abs(min));
+                    animation.maxBounds = new Vector3(max, max, max);
+                    animation.minBounds = new Vector3(-max, -max, -max);
+
+                    inPogressVertexAnimations[i] = animation;
+                }
+                
                 firstTime = false;
                 frame = 0;
             }
