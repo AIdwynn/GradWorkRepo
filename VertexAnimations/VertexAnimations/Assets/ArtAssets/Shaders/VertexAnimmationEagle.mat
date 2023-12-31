@@ -43,13 +43,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Frames: 0.923
+    - _Frames: 0
     - _QueueControl: 0
     - _QueueOffset: 0
     - _VertexCount: 3395
     m_Colors:
-    - _PosMax: {r: 0.97, g: 0.97, b: 0.97, a: 0}
-    - _PosMin: {r: -0.97, g: -0.97, b: -0.97, a: 0}
+    - _PosMax: {r: 3.33, g: 1.28, b: 1.97, a: 0}
+    - _PosMin: {r: -1.19, g: -1, b: -0.2, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &8315052881394116424
 MonoBehaviour:

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -92,27 +93,14 @@ public class SCRED_AnimationWindow : EditorWindow
 
                 inPogressVertexAnimations[i] = animation;
             }
-
+            
+            frame += 1;
+            
             if (allDone)
             {
-                for (int i = 0; i < inPogressVertexAnimations.Length; i++)
-                {
-                    var animation = inPogressVertexAnimations[i];
-                    var maxBounds = animation.maxBounds;
-                    var minBounds = animation.minBounds;
-                    var max = Mathf.Max(maxBounds.x, Mathf.Max(maxBounds.y, maxBounds.z));
-                    var min = Mathf.Min(minBounds.x, Mathf.Max(minBounds.y, minBounds.z));
-                    max = Mathf.Max(max, Mathf.Abs(min));
-                    animation.maxBounds = new Vector3(max, max, max);
-                    animation.minBounds = new Vector3(-max, -max, -max);
-
-                    inPogressVertexAnimations[i] = animation;
-                }
-                
                 firstTime = false;
                 frame = 0;
             }
-            frame += 1;
 
             SceneView.RepaintAll();
         }
@@ -220,11 +208,10 @@ public struct InPogressVertexAnimation
         {
             Matrix4x4 boneMatrix = bones[target.boneWeights[i].boneIndex0].localToWorldMatrix;
             Matrix4x4 bindPoseMatrix = bindposes[target.boneWeights[i].boneIndex0];
-            vertices[i] = boneMatrix * bindPoseMatrix.MultiplyPoint(target.vertices[i]);
+            vertices[i] = boneMatrix.MultiplyPoint3x4(bindPoseMatrix.MultiplyPoint3x4(target.vertices[i]));
         }
-
-
-        verteces = vertices;
+        
+        verteces = vertices.ToArray();
         if (verteces.Length == 0) { throw new Exception("Failed to get verteces"); }
         return true;
     }
