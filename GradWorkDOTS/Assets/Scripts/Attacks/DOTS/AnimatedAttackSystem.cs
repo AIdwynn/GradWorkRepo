@@ -51,6 +51,8 @@ namespace Gradwork.Attacks.DOTS
                 i++;
             }
             
+            
+            
             NativeArray<float3> obstaclePositions = new NativeArray<float3>(i, Allocator.TempJob);
             NativeArray<float> obstacleRadiuses = new NativeArray<float>(i, Allocator.TempJob);
             i = 0;

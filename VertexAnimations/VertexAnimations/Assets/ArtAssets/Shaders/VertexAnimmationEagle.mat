@@ -48,6 +48,7 @@ Material:
     - _QueueOffset: 0
     - _VertexCount: 3395
     m_Colors:
+    - _Offset: {r: -1.1, g: 0, b: -1.08, a: 0}
     - _PosMax: {r: 3.33, g: 1.28, b: 1.97, a: 0}
     - _PosMin: {r: -1.19, g: -1, b: -0.2, a: 0}
   m_BuildTextureStacks: []
