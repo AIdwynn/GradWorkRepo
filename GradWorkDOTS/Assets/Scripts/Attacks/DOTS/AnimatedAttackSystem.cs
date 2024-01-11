@@ -25,7 +25,7 @@ namespace Gradwork.Attacks.DOTS
         {
             timePassed = 0;
             timeToSpawn = 0.25f;
-            amountPerWave = 250 ;
+            amountPerWave = 500 ;
             spawnPoint = new float3(0, 0, 0);
             
             state.RequireForUpdate<Spawner>();

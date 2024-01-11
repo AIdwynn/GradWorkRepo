@@ -9,7 +9,7 @@ public class AnimatedBirdSpawner : MonoBehaviour
     [SerializeField] private GameObject Animatedbird;
     void Awake()
     {
-        new ObjectPoolManager().CreateObjectPool(Animatedbird, 20500, true);
+        new ObjectPoolManager().CreateObjectPool(Animatedbird, 40500, true);
         PoolNames.AnimatedGameObject = Animatedbird.name;
         
         Destroy(this.gameObject);
