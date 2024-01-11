@@ -22,6 +22,12 @@ namespace Gradwork.Attacks
         [SerializeField] private int _attackPoolSize = 1000;
         [SerializeField] private List<ObstaclesView> _obstaclesViews;
         [SerializeField] private SCRMO_CharacterController _characterController;
+
+        [Header("Animation")] [SerializeField] private bool Animated;
+        [SerializeField] private int _amountOfframes = 43;
+        [SerializeField] private float _clipLength = 1.433f;
+        [SerializeField] private Material material;
+        private VertexAnimationMaterialHandler _vertexAnimationMaterialHandler;
         
         private List<ObstaclesModel> _obstaclesModels = new List<ObstaclesModel>();
         private ObjectPoolManager _objectPoolManager;
@@ -43,9 +49,8 @@ namespace Gradwork.Attacks
             _objectPoolManager = new ObjectPoolManager();
             new BirdModel();
 
-            _objectPoolManager.CreateObjectPool<BirdModel>(_attackPrefab, BirdModel.NameStatic, _attackPoolSize, true);
-            _objectPoolManager.TryGetScriptPool<BirdModel>(BirdModel.NameStatic, out var birdPool);
-            
+            _objectPoolManager.CreateObjectPool<BirdModel>(_attackPrefab, BirdModel.NameStatic, _attackPoolSize, true)
+            .TryGetScriptPool<BirdModel>(BirdModel.NameStatic, out var birdPool);
             
             foreach (var bird in birdPool.Pool)
             {
@@ -53,6 +58,16 @@ namespace Gradwork.Attacks
                 {
                     _characterController.PlayerHit(bird.Position, 1);
                 };
+                
+            }
+            
+            if (Animated)
+            {
+                _vertexAnimationMaterialHandler = new VertexAnimationMaterialHandler(material, 5, _amountOfframes, _clipLength);
+                foreach (var bird in birdPool.Pool)
+                {
+                    bird.GO.GetComponentInChildren<MeshRenderer>().material = _vertexAnimationMaterialHandler.GetRandomMaterial();
+                }
             }
             
             _attackManager = new AttackManager(_obstaclesModels, transform.position);
@@ -80,15 +95,17 @@ namespace Gradwork.Attacks
             StartCoroutine(WaitForNextWave());
         }
 
-        private void FixedUpdate()
-        {
-            _attackManager.Update();
-        }
-
         private Vector3 GetRotation(int i)
         {
             var angle = (360f / _amountPerWave) * i;
             return new Vector3(0, angle, 0);
+        }
+
+        private void Update()
+        {
+            if(Animated)
+                _vertexAnimationMaterialHandler.Update(Time.deltaTime);
+            _attackManager.Update();
         }
 
         public IEnumerator WaitForNextWave()

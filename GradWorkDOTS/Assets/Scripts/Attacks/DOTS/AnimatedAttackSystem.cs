@@ -24,8 +24,8 @@ namespace Gradwork.Attacks.DOTS
         public void OnCreate(ref SystemState state)
         {
             timePassed = 0;
-            timeToSpawn = 0.5f;
-            amountPerWave = 150 ;
+            timeToSpawn = 0.25f;
+            amountPerWave = 250 ;
             spawnPoint = new float3(0, 0, 0);
             
             state.RequireForUpdate<Spawner>();
@@ -35,12 +35,18 @@ namespace Gradwork.Attacks.DOTS
         
         public void OnUpdate(ref SystemState state)
         {
+            var spawner = SystemAPI.GetSingleton<Spawner>();
+            if(!spawner.Animted) return;
+            
             var deltaTime = SystemAPI.Time.DeltaTime;
             timePassed += deltaTime;
+            
+            
             if (timePassed > timeToSpawn)
             {
+                var prefab = spawner.Prefab;
                 timePassed = 0;
-                SpawnWave(ref state);
+                SpawnWave(ref state, prefab);
             }
             
 
@@ -137,7 +143,7 @@ namespace Gradwork.Attacks.DOTS
             
             var ecb = new EntityCommandBuffer(Allocator.Temp);
             
-            foreach (var (bird, entity) in SystemAPI.Query<RefRW<Bird>>().WithEntityAccess())
+            foreach (var (bird, entity) in SystemAPI.Query<RefRW<AnimatedBird>>().WithEntityAccess())
             {
                 bird.ValueRW.TimeAlive += deltaTime;
                 if (bird.ValueRO.TimeAlive > bird.ValueRO.Lifetime)
@@ -146,6 +152,11 @@ namespace Gradwork.Attacks.DOTS
                 }
             }
 
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
+            
+            ecb = new EntityCommandBuffer(Allocator.Temp);
+            
             foreach (var (animatorComp, entity) in SystemAPI.Query<AnimatorComp>().WithNone<LocalTransform, AnimatedBird>().WithEntityAccess())
             {
                 ObjectPoolManager.Instance.TryReturn(PoolNames.AnimatedGameObject, animatorComp.Animator.gameObject);
@@ -158,10 +169,9 @@ namespace Gradwork.Attacks.DOTS
 
         }
         
-        private void SpawnWave(ref SystemState state)
+        private void SpawnWave(ref SystemState state, Entity prefab)
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
-            var prefab = SystemAPI.GetSingleton<Spawner>().Prefab;
             var instances = state.EntityManager.Instantiate(prefab,amountPerWave, Allocator.Temp);
 
             for (int i = 0; i < instances.Length; i++)

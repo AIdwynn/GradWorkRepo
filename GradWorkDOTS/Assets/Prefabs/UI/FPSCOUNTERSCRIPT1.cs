@@ -6,10 +6,15 @@ using UnityEngine;
 public class FPSCOUNTERSCRIPT : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _textMeshPro;
+    private float togetherFPS;
+    private float frames;
 
     // Update is called once per frame
     void Update()
     {
-        _textMeshPro.text = (1f / Time.deltaTime).ToString("0");
+        var fps = 1f / Time.deltaTime;
+        togetherFPS += fps;
+        frames++;
+        _textMeshPro.text = $"FPS:         {fps} \nAverageFPS: {togetherFPS/frames}";
     }
 }

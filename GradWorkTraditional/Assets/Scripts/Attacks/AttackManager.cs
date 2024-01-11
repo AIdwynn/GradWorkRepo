@@ -31,7 +31,7 @@ namespace Gradwork.Attacks
             {
                 if (model.IsViewActive)
                 {
-                    model.SetPosition(model.Position + (model.Speed * Time.fixedDeltaTime * model.Forward));
+                    model.SetPosition(model.Position + (model.Speed * Time.deltaTime * model.Forward));
                     var newCell = grid.PositionToCell(model.Position.x, model.Position.z);
                     if (newCell.x != model.x || newCell.y != model.y)
                     {
@@ -155,7 +155,7 @@ namespace Gradwork.Attacks
                     return;
                 }
 
-                var rotation = Quaternion.AngleAxis(model.RotationAroundObjectSpeed * Time.fixedDeltaTime, Vector3.up);
+                var rotation = Quaternion.AngleAxis(model.RotationAroundObjectSpeed * Time.deltaTime, Vector3.up);
                 bridDirection = rotation * bridDirection * obstacle.Radius;
                 model.SetPosition(bridDirection + obstacle.Position);
             }

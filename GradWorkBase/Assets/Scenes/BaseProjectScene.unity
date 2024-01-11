@@ -1254,6 +1254,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4063059644658598744, guid: 670349f8646220d42a5a1beb91fbe0aa,
+        type: 3}
+      propertyPath: m_margin.w
+      value: -103.94739
+      objectReference: {fileID: 0}
+    - target: {fileID: 4063059644658598744, guid: 670349f8646220d42a5a1beb91fbe0aa,
+        type: 3}
+      propertyPath: m_margin.z
+      value: -515.4316
+      objectReference: {fileID: 0}
     - target: {fileID: 5150317420049062962, guid: 670349f8646220d42a5a1beb91fbe0aa,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1516,8 +1526,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
         type: 3}
+      propertyPath: _attackPrefab
+      value: 
+      objectReference: {fileID: 6392790016983472278, guid: 8fd073d89621a7a4ea62745380423fe4,
+        type: 3}
+    - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
+        type: 3}
       propertyPath: _amountPerWave
-      value: 150
+      value: 250
+      objectReference: {fileID: 0}
+    - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
+        type: 3}
+      propertyPath: _attackPoolSize
+      value: 10500
       objectReference: {fileID: 0}
     - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
         type: 3}

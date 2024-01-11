@@ -52,6 +52,7 @@ namespace Vital.ObjectPools
         {
             var obj = (T)Activator.CreateInstance(typeof(T));
             obj.GO = GameObject.Instantiate(_originalView, _parent);
+            obj.GO.SetActive(false);
 
             SCR_EventHelper.TrySendEvent(PoolGrew, this, new ScriptObjectPoolGrewEventArgs<T>( obj));
             return obj;
@@ -85,9 +86,6 @@ namespace Vital.ObjectPools
             {
                 return false;
             }
-
-            if (!_pool.Contains(poolableObject))
-                return false;
             
             return true;
         }

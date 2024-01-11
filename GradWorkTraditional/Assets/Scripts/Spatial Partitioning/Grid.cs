@@ -139,7 +139,7 @@ namespace Vital.Spatial_Partitioning
             Unit currentTop = birdsCells[bird.x, bird.y];
             
             
-            if (currentTop.id == bird.id)
+            if (currentTop != null && currentTop.id == bird.id)
             {
                 var nextTop = currentTop.Next;
                 birdsCells[bird.x, bird.y] = nextTop;
@@ -150,7 +150,8 @@ namespace Vital.Spatial_Partitioning
             {
                 var prev = bird.Prev;
                 var next = bird.Next;
-                prev.Next = next;
+                if(prev != null)
+                    prev.Next = next;
                 if (next != null)
                     next.Prev = prev;
             }

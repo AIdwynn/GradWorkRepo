@@ -1516,19 +1516,34 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
         type: 3}
+      propertyPath: Animated
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
+        type: 3}
+      propertyPath: material
+      value: 
+      objectReference: {fileID: 2100000, guid: 50313354ff36e9e43b25b01a26e2900c, type: 2}
+    - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
+        type: 3}
       propertyPath: _attackPrefab
       value: 
-      objectReference: {fileID: 6392790016983472278, guid: 3f9ec48f17e6430419f41a49e9b50929,
+      objectReference: {fileID: 6392790016983472278, guid: 138355b2351711f4bb1af11b5156b0bc,
         type: 3}
     - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
         type: 3}
       propertyPath: _amountPerWave
-      value: 150
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
+        type: 3}
+      propertyPath: _attackPoolSize
+      value: 40500
       objectReference: {fileID: 0}
     - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
         type: 3}
       propertyPath: _timeBetweenWaves
-      value: 0.5
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 5272393591731978765, guid: 26b937729e8d19b4eac6faab941d67df,
         type: 3}

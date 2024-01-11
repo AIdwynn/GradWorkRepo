@@ -74,9 +74,6 @@ namespace Vital.ObjectPools
                 return false;
             }
 
-            if (!_pool.Contains(poolableObject))
-                return false;
-
             return true;
         }
     }

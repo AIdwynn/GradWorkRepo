@@ -63,13 +63,14 @@ namespace Gradwork.Attacks
                 {
                     birdModel.SetView(attack).SetPosition(transform.position).SetRotation(GetRotation(i)).SetActive(true);
                     attack.SetActive(true);
+                    birdModel.TimeAlive = 0;
                 }
             }
 
             StartCoroutine(WaitForNextWave());
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             _attackManager.Update();
         }

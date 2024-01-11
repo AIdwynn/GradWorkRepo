@@ -126,7 +126,7 @@ namespace Gradwork.Attacks
         {
             NameStatic = typeof(BirdModel).ToString();
             _poolManager = ObjectPoolManager.Instance;
-            Lifetime = 10f;
+            Lifetime = 20f;
             Speed = 10f;
             RotationAroundObjectSpeed = 10f;
             var topNorthernCorner = new Vector3(0.273f, 0.229f, 0.8965f);

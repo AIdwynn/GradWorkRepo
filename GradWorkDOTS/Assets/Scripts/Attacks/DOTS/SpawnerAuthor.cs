@@ -5,6 +5,7 @@ namespace Gradwork.Attacks.DOTS
 {
     public class SpawnerAuthor : MonoBehaviour
     {
+        public bool Animated;
         public MonoBehaviour Prefab;
         
         class Baker : Baker<SpawnerAuthor>
@@ -14,6 +15,7 @@ namespace Gradwork.Attacks.DOTS
                 var entity = GetEntity(TransformUsageFlags.None);
                 AddComponent(entity, new Spawner
                 {
+                    Animted = authoring.Animated,
                     Prefab = GetEntity(authoring.Prefab.gameObject, TransformUsageFlags.Dynamic)
                 });
             }
@@ -23,5 +25,6 @@ namespace Gradwork.Attacks.DOTS
     struct Spawner : IComponentData
     {
         public Entity Prefab;
+        public bool Animted;
     }
 }
